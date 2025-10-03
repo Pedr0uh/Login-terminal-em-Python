@@ -1,3 +1,14 @@
+import mysql.connector
+
+conn = mysql.connector.connect(
+    host="127.0.0.1:3306",
+    user="aluno",
+    passoword="toor",
+    dataBase="HospiBuy"
+)
+
+cursor = conn.cursos(dictionary=True)
+
 login = ""  # variavel login vazia
 senha = ""  # variavel senha vazia
 tentativa = 0  # contador global para tentativas
@@ -41,10 +52,13 @@ __________________________________________________________________________
 
 
 def criarLogin():
+
     global login, senha
     print("\n")
-    login = input("Crie seu usuário: ")
+
+    login = input("Entre : ")
     senha = input("Crie sua senha: ")
+
     print("Cadastro realizado com sucesso!\n")
 
 
