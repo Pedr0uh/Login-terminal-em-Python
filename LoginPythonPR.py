@@ -1,24 +1,56 @@
 import mysql.connector
 
 conn = mysql.connector.connect(
-    host="127.0.0.1:3306",
+    host="127.0.0.1", # temos que aprender como esconder host e senha
     user="aluno",
-    passoword="toor",
-    dataBase="HospiBuy"
+    password="toor",
+    database="HospiBuy",
+    port="3306"
 )
 
-cursor = conn.cursos(dictionary=True)
+cursor = conn.cursor(dictionary=True)
 
 login = ""  # variavel login vazia
 senha = ""  # variavel senha vazia
+nome = ""
 tentativa = 0  # contador global para tentativas
 
 
 def main():
+
+    print("Conectando com o Banco...")
+
+    if conn.is_connected():
+        print("\nConectado com o banco com sucesso!")
+    else:
+        print("\nFalha em conectar com o banco")
+
     inicio()
 
 
 def inicio():
+
+    """
+    cpf_teste = "12345678900"
+    nome_teste = "Pedro Teste"
+    num_acess_teste = 0
+    senha_teste = "1234"
+
+    query = "INSERT INTO usuarios (CPF, nome, num_acesso, senha) VALUES (%s, %s, %s, %s)"
+    valores = cpf_teste, nome_teste, num_acess_teste, senha_teste
+
+    cursor.execute(query, valores) = digitar valores para query do SQL
+
+    conn.commit() = para salvar no banco de dados
+
+    cursor.execute("SELECT * FROM usuarios;") = query para mostrar os dados da tabela
+    dadosUsuarios = cursor.fetchall() = guardei o comando fetchall em uma tabela, que mostra os dados da query
+    (todas as linhas, fetchone para uma linha só)
+
+    print(dadosUsuarios) dei print para mostrar o valor da variavel que é o fetchall
+
+    """
+
     while True:  # loop para manter o menu ativo
         print(r"""
 __________________________________________________________________________
@@ -53,11 +85,21 @@ __________________________________________________________________________
 
 def criarLogin():
 
-    global login, senha
-    print("\n")
+    global login, senha, nome
 
-    login = input("Entre : ")
-    senha = input("Crie sua senha: ")
+
+    cnes = input("\nInsira o CNES do Hospital (sem caracteres)")
+    cnpj = input("Insira o CNPJ do Hospital (sem caracteres): ")
+    nomeHospital = input("Insira o nome do Hospital: ")
+    telefone = input("Insira um telefone de contato: ")
+    email = input("Insira um email principal: ")
+    cpfADM = input("Insira o CPF do administrador: ")
+    nomeADM = input("Insira o nome do administrador: ")
+    senha = input("Crie uma senha para o login do adminstrador: ")
+
+    query = "INSERT INTO hospitais (CNES, CNPJ, nome, telefone, email, cpfADM, nomeADM, senha) VALUES (s%, s%, s%, s%, s%, s%, s%, s%)"
+    valores = cnes, cnpj, nomeHospital, telefone, email, cpfADM, nomeADM, senha
+
 
     print("Cadastro realizado com sucesso!\n")
 
@@ -112,12 +154,15 @@ def estoque():
     home()
     return
 
-
 def compras():
     print("\nCompras aqui!\n")
     home()
     return
 
+def compras():
+    print("\nCompras aqui!\n")
+    home()
+    return
 
 def descarte():
     print("\nDescarte aqui!\n")
