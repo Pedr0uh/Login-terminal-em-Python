@@ -88,7 +88,7 @@ def criarLogin():
     global login, senha, nome
 
 
-    cnes = input("\nInsira o CNES do Hospital (sem caracteres)")
+    cnes = input("\nInsira o CNES do Hospital (sem caracteres): ")
     cnpj = input("Insira o CNPJ do Hospital (sem caracteres): ")
     nomeHospital = input("Insira o nome do Hospital: ")
     telefone = input("Insira um telefone de contato: ")
@@ -96,25 +96,73 @@ def criarLogin():
     cpfADM = input("Insira o CPF do administrador: ")
     nomeADM = input("Insira o nome do administrador: ")
     senha = input("Crie uma senha para o login do adminstrador: ")
+    plano = input("""
+-- Qual plano quer assinar? -- 
 
-    query = "INSERT INTO hospitais (CNES, CNPJ, nome, telefone, email, cpfADM, nomeADM, senha) VALUES (s%, s%, s%, s%, s%, s%, s%, s%)"
-    valores = cnes, cnpj, nomeHospital, telefone, email, cpfADM, nomeADM, senha
+    1 - Plano 1    
+    2 - Plano 2
+    3 - Plano 3
+    
+    """)
 
+    while plano not in ["1", "2", "3"]:
+        print(r"""
+Número digitado incorreto, tente novamente:
 
-    print("Cadastro realizado com sucesso!\n")
+-- Qual plano quer assinar? -- 
+
+    1 - Plano 1    
+    2 - Plano 2
+    3 - Plano 3 
+    """)
+        
+        plano = input("Escolha a opção: ")
+
+    query = "INSERT INTO hospitais (CNES, CNPJ, nome, telefone, email, cpfADM, nomeADM, senha, plano) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    valores = cnes, cnpj, nomeHospital, telefone, email, cpfADM, nomeADM, senha, plano
+    
+    queryLogin = "INSERT INTO usuarios (CPF, nome, senha) VALUES(%s, %s, %s)"
+    valoresLogin = cpfADM, nomeADM, senha
+
+    cursor.execute(query, valores)
+    
+    cursor.execute(queryLogin, valoresLogin)
+
+    conn.commit()
+
+    print("""
+-------------------------------
+Cadastro realizado com sucesso!
+-------------------------------
+""")
 
 
 def fazerLogin():
     global tentativa
-    global login, senha
+    
 
     while tentativa < 5:
-        entradaLogin = input("Digite seu usuário: ")
+        entradaLogin = input("Digite seu CPF: ")
         entradaSenha = input("Digite sua senha: ")
 
-        if entradaLogin == login and entradaSenha == senha:
-            print(f"Bem vindo {login}!\n")
+        query = "SELECT nome FROM usuarios WHERE CPF = %s AND senha = %s"
+        valores = entradaLogin, entradaSenha
+        
+        cursor.execute(query, valores)
+        resultado = cursor.fetchone
+
+        if resultado:
+            
+            nome_usuario = resultado['nome']
+            
+            print(f"""
+            -------------------------------------      
+                  Bem vindo {nome_usuario}!
+            -------------------------------------      
+                  \n""")
+            
             home()
+            
             return  # sai da função
         else:
             tentativa += 1
