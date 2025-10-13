@@ -1,29 +1,33 @@
 import mysql.connector
+import time
 
 conn = mysql.connector.connect(
-    host="127.0.0.1", # temos que aprender como esconder host e senha
-    user="aluno",
-    password="toor",
+    host="shinkansen.proxy.rlwy.net", # temos que aprender como esconder host e senha
+    user="root",
+    password="eSGzRtPwShQdjLoqAqsjUCpAIzHqPLRX",
     database="HospiBuy",
-    port="3306"
+    port="18428"
 )
 
 cursor = conn.cursor(dictionary=True)
 
 login = ""  # variavel login vazia
 senha = ""  # variavel senha vazia
-nome = ""
+nome_usuario = ""
+cargo = ""
 tentativa = 0  # contador global para tentativas
 
 
 def main():
 
-    print("Conectando com o Banco...")
+    print("\nConectando com o Banco...")
+    
+    time.sleep(5)
 
     if conn.is_connected():
         print("\nConectado com o banco com sucesso!")
     else:
-        print("\nFalha em conectar com o banco")
+        print("\nFalha em conectar com o banco!")
 
     inicio()
 
@@ -68,8 +72,9 @@ __________________________________________________________________________
 """)
         print(r"""Escolha uma opção:
 
-    1 - Fazer Login
-    2 - Criar Login
+1 - Fazer Login
+2 - Criar Login
+3 - Sair
 """)
         escolha = input("Digite a opção: ")
         match escolha: # match para "escolha e caso" ligado a variavel escolha
@@ -78,15 +83,14 @@ __________________________________________________________________________
             case "2": # caso a variavel seja 2
                 criarLogin()
             case "3": # caso a variavel seja 3
+                sair()
+            case "4": # caso 4 vai pra home
                 home()
             case _: # caso a variavel não seja nenhuma das opções
                 print("Erro! Opção inválida!")
 
 
 def criarLogin():
-
-    global login, senha, nome
-
 
     cnes = input("\nInsira o CNES do Hospital (sem caracteres): ")
     cnpj = input("Insira o CNPJ do Hospital (sem caracteres): ")
@@ -121,7 +125,7 @@ Número digitado incorreto, tente novamente:
     query = "INSERT INTO hospitais (CNES, CNPJ, nome, telefone, email, cpfADM, nomeADM, senha, plano) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
     valores = cnes, cnpj, nomeHospital, telefone, email, cpfADM, nomeADM, senha, plano
     
-    queryLogin = "INSERT INTO usuarios (CPF, nome, senha) VALUES(%s, %s, %s)"
+    queryLogin = "INSERT INTO usuarios (CPF, nome, senha, cargo) VALUES(%s, %s, %s, 'ADM')"
     valoresLogin = cpfADM, nomeADM, senha
 
     cursor.execute(query, valores)
@@ -129,6 +133,10 @@ Número digitado incorreto, tente novamente:
     cursor.execute(queryLogin, valoresLogin)
 
     conn.commit()
+    
+    print("\nSalvando informações...")
+    
+    time.sleep(20)
 
     print("""
 -------------------------------
@@ -138,28 +146,28 @@ Cadastro realizado com sucesso!
 
 
 def fazerLogin():
-    global tentativa
+    global tentativa, nome_usuario, cargo
     
-
     while tentativa < 5:
         entradaLogin = input("Digite seu CPF: ")
         entradaSenha = input("Digite sua senha: ")
 
-        query = "SELECT nome FROM usuarios WHERE CPF = %s AND senha = %s"
+        query = "SELECT nome, cargo FROM usuarios WHERE CPF = %s AND senha = %s"
         valores = entradaLogin, entradaSenha
         
         cursor.execute(query, valores)
-        resultado = cursor.fetchone
+        resultado = cursor.fetchone()
 
         if resultado:
             
             nome_usuario = resultado['nome']
+            cargo = resultado['cargo']
             
-            print(f"""
-            -------------------------------------      
-                  Bem vindo {nome_usuario}!
-            -------------------------------------      
-                  \n""")
+            print(f"""\n
+------------------------------------      
+        Bem vindo {nome_usuario}!
+------------------------------------    
+                  """)
             
             home()
             
@@ -176,13 +184,20 @@ def home():
     print(r"""
 -- O que deseja fazer hoje? -- 
 
-    1 - Verificar Estoque    
+    1 - Gerenciar Estoque    
     2 - Comprar Itens
     3 - Descarte de Itens
-    4 - Sair 
+    4 - Gerenciar Usuários
+    5 - Sair 
     """)
 
     opcao = input("Escolha a opção: ")
+
+    if opcao == "4":
+        if cargo != "ADM":
+            print("Acesso negado, apenas Adminstradores podem acessar. Entre em contato com o adminstrador da plataforma")
+            home()
+            return
 
     while True:
         match opcao:
@@ -193,9 +208,18 @@ def home():
             case "3":
                 descarte()
             case "4":
+                gerenciarUsuarios()
+            case "5":
                 sair()
             case _:
                 print("Erro! Tente novamente")
+
+
+def gerenciarUsuarios():
+    print("\nGerenciamento de Usuários aqui!\n")
+    home()
+    return
+
 
 def estoque():
     print("\nEstoque aqui!\n")
